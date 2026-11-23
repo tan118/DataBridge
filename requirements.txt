@@ -3,7 +3,7 @@ pandas
 numpy
 streamlit
 sqlalchemy
-psycopg[binary]
+pg8000
 plotly
 python-dotenv
 openpyxl
