@@ -7,3 +7,4 @@ pg8000
 plotly
 python-dotenv
 openpyxl
+xlrd

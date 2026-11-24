@@ -3,9 +3,10 @@
 .venv/
 venv/
 
-# Python cache
+# Python cache and compiled files
 __pycache__/
 *.py[cod]
+*$py.class
 
 # Environment variables and secrets
 .env
@@ -19,7 +20,13 @@ data/processed/*
 !data/processed/.gitkeep
 
 # Logs
-logs/*.log
+logs/
+*.log
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Streamlit secrets
 .streamlit/secrets.toml

@@ -5,6 +5,7 @@ import pandas as pd
 
 from src.transform import transform_dataframe
 from src.load import load_dataframe
+from src.convert_to_csv import convert_to_csv, get_excel_sheet_names
 
 
 # =====================================================
@@ -18,7 +19,7 @@ st.set_page_config(
 )
 
 st.title("🔗 DataBridge")
-st.subheader("CSV Data Integration & Quality Platform")
+st.subheader("CSV Data Integration, Quality & Conversion Platform")
 st.caption(
     "Upload, profile, transform and load datasets into PostgreSQL."
 )
@@ -39,6 +40,7 @@ page = st.sidebar.radio(
         "Upload Dataset",
         "Data Profiling",
         "Data Transformation",
+        "File Conversion",
         "Database Loading"
     ]
 )
@@ -766,9 +768,137 @@ elif page == "Data Transformation":
             )
 
 
+
+
 # =====================================================
-# 5. DATABASE LOADING
+# 5. FILE CONVERSION
 # =====================================================
+
+elif page == "File Conversion":
+
+    st.header("File Conversion")
+    st.caption(
+        "Convert JSON and Excel files into standardized CSV files."
+    )
+
+    st.info(
+        "Supported inputs: JSON (.json), Excel (.xlsx, .xls). "
+        "The output format is always CSV."
+    )
+
+    uploaded_file = st.file_uploader(
+        "Upload a JSON or Excel file",
+        type=["json", "xlsx", "xls"],
+        key="conversion_uploader"
+    )
+
+    if uploaded_file is not None:
+
+        file_extension = uploaded_file.name.rsplit(".", 1)[-1].lower()
+        selected_sheet = 0
+
+        st.write(f"**Selected file:** {uploaded_file.name}")
+
+        # Excel workbooks can contain multiple sheets.
+        if file_extension in ["xlsx", "xls"]:
+
+            try:
+                sheet_names = get_excel_sheet_names(uploaded_file)
+
+                if not sheet_names:
+                    st.error("No worksheets were found in this Excel file.")
+                    st.stop()
+
+                selected_sheet = st.selectbox(
+                    "Select the worksheet to convert",
+                    options=sheet_names,
+                    key="conversion_sheet_selector"
+                )
+
+            except Exception as error:
+                st.error(f"Unable to read Excel worksheets: {error}")
+                st.stop()
+
+        if st.button(
+            "Convert to CSV",
+            type="primary",
+            use_container_width=True
+        ):
+
+            try:
+                with st.spinner("Converting file to CSV..."):
+
+                    converted_df, csv_data = convert_to_csv(
+                        uploaded_file=uploaded_file,
+                        file_name=uploaded_file.name,
+                        sheet_name=selected_sheet
+                    )
+
+                output_filename = (
+                    uploaded_file.name.rsplit(".", 1)[0] + ".csv"
+                )
+
+                st.session_state["converted_df"] = converted_df
+                st.session_state["converted_csv"] = csv_data
+                st.session_state["converted_filename"] = output_filename
+                st.session_state["converted_source"] = uploaded_file.name
+
+                st.success("File converted to CSV successfully!")
+
+            except Exception as error:
+                st.error(f"File conversion failed: {error}")
+
+        # Show the latest conversion result for the current source file.
+        if (
+            st.session_state.get("converted_source")
+            == uploaded_file.name
+            and "converted_csv" in st.session_state
+        ):
+
+            converted_df = st.session_state["converted_df"]
+            csv_data = st.session_state["converted_csv"]
+            output_filename = st.session_state["converted_filename"]
+
+            st.divider()
+            st.subheader("Conversion Summary")
+
+            col1, col2, col3 = st.columns(3)
+
+            col1.metric("Total Records", f"{len(converted_df):,}")
+            col2.metric("Total Columns", f"{len(converted_df.columns):,}")
+            col3.metric(
+                "CSV File Size",
+                f"{len(csv_data) / (1024 * 1024):.2f} MB"
+            )
+
+            st.subheader("Converted Dataset Preview")
+
+            st.dataframe(
+                converted_df.head(20),
+                use_container_width=True,
+                hide_index=True
+            )
+
+            st.download_button(
+                label="Download Converted CSV",
+                data=csv_data,
+                file_name=output_filename,
+                mime="text/csv",
+                type="primary",
+                use_container_width=True
+            )
+
+    else:
+        st.caption(
+            "Upload a JSON or Excel file to begin. "
+            "CSV files can be uploaded through the Upload Dataset page."
+        )
+
+
+# =====================================================
+# 6. DATABASE LOADING
+# =====================================================
+
 
 elif page == "Database Loading":
 
