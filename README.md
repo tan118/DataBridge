@@ -1,156 +1,212 @@
-# DataBridge
+# 🔗 DataBridge
 
-**DataBridge** is a Python-based data integration and data-quality application built with Streamlit. It helps users inspect, clean, convert, and load tabular datasets through an interactive interface.
+### CSV Data Integration & Quality Platform
 
-## Features
+DataBridge is a Python-based data integration and quality platform built with Streamlit. It allows users to upload datasets, inspect data quality, perform data cleaning and transformations, convert file formats, and load datasets into PostgreSQL.
 
-### 1. CSV Data Upload
+**Live Application:** https://databridge-etl.streamlit.app/  
+**GitHub Repository:** https://github.com/tan118/DataBridge
+
+---
+
+## 📌 Features
+
+### 1. Dashboard
+- Overview of the DataBridge application.
+- Navigation between different data management modules.
+
+### 2. Dataset Upload
 - Upload CSV datasets.
-- Preview records and inspect basic dataset dimensions.
-- Keep the original uploaded dataset unchanged while applying transformations to a working copy.
+- Preview uploaded records.
+- View basic dataset information.
 
-### 2. Data Profiling
-- View row and column counts.
-- Identify duplicate records.
-- Inspect missing values and missing-value percentages.
-- Review column data types and unique-value counts.
-- View numerical descriptive statistics.
+### 3. Data Profiling
+- Dataset dimensions and data types.
+- Missing-value analysis.
+- Duplicate record detection.
+- Unique-value analysis.
+- Numerical statistics.
 
-### 3. Data Transformation
-- Remove duplicate records using all columns or selected columns.
-- Choose whether to retain the first or last occurrence, or remove all duplicate occurrences.
-- Handle missing values using options such as dropping rows, mean, median, mode, a custom constant, or keeping values unchanged.
-- Standardize text using trimming, lowercase, uppercase, and title case.
-- Handle negative and zero numeric values by keeping, removing, or replacing them.
-- Standardize dates and choose how to handle invalid dates.
-- Standardize column names.
-- Review a before-and-after summary and a detailed cleaning report.
-- Download the cleaned dataset as CSV.
+### 4. Data Transformation
+- Duplicate record removal.
+- Missing-value handling.
+- Text standardization.
+- Negative and zero-value handling.
+- Date standardization.
+- Column-name standardization.
+- Before-and-after comparison and cleaning report.
 
-> **Important:** Duplicate detection on selected columns treats rows with matching values in those columns as duplicates, even if other columns differ. Use this option carefully. For exact duplicate-row removal, select all columns.
-
-### 4. File Conversion
+### 5. File Conversion
+- Convert Excel files (`.xlsx` and `.xls`) to CSV.
 - Convert JSON files to CSV.
-- Convert Excel `.xlsx` and `.xls` files to CSV.
-- Select a worksheet when converting a multi-sheet Excel workbook.
-- Preview converted data and download the resulting CSV.
-- CSV is the output format for this conversion feature.
+- Preview converted datasets.
+- Download converted CSV files.
 
-### 5. PostgreSQL Database Loading
-- Connect to a PostgreSQL database.
-- Load the current dataset into a destination table.
-- Choose whether to replace an existing table or append records.
-- Review the number of records submitted and the database record count.
+### 6. PostgreSQL Database Loading
+- Load datasets into PostgreSQL.
+- Replace existing tables or append records.
+- Display submitted and loaded record counts.
+- Supports local PostgreSQL and hosted PostgreSQL through Neon.
 
-## Technology Stack
+---
 
-- **Language:** Python
-- **User Interface:** Streamlit
-- **Data Processing:** Pandas, NumPy
-- **Database:** PostgreSQL
-- **Database Access:** SQLAlchemy, Psycopg
-- **Excel Support:** OpenPyXL, xlrd
-- **Data Export:** CSV
+## 🛠️ Technology Stack
 
-## Project Structure
+| Component | Technology |
+|---|---|
+| Programming Language | Python |
+| Frontend / Application | Streamlit |
+| Data Processing | Pandas, NumPy |
+| Database | PostgreSQL |
+| Database Integration | SQLAlchemy, pg8000 |
+| File Handling | OpenPyXL, xlrd |
+| Configuration | python-dotenv, Streamlit Secrets |
+| Deployment | Streamlit Community Cloud |
+| Hosted Database | Neon |
+
+---
+
+## 📁 Project Structure
 
 ```text
 DataBridge/
 │
 ├── data/
-│   ├── raw/                 # Local input datasets
-│   └── processed/           # Local processed outputs
-│
-├── logs/                    # Application logs
+│   ├── raw/
+│   └── processed/
 │
 ├── src/
-│   ├── extract.py           # CSV extraction
-│   ├── profile.py           # Dataset profiling
-│   ├── transform.py         # Data cleaning and transformation
-│   ├── convert_to_csv.py    # JSON/Excel-to-CSV conversion
-│   ├── database.py          # PostgreSQL connection
-│   └── load.py              # Load DataFrames into PostgreSQL
+│   ├── extract.py
+│   ├── profile.py
+│   ├── transform.py
+│   ├── database.py
+│   ├── load.py
+│   └── convert_to_csv.py
 │
-├── app.py                   # Streamlit application
-├── requirements.txt         # Python dependencies
-├── .env                     # Local database credentials
-└── .gitignore
+├── screenshots/
+│
+├── logs/
+│
+├── app.py
+├── README.md
+├── requirements.txt
+├── .gitignore
+└── .env.example
 ```
 
-## Prerequisites
+---
 
-- Python 3.10 or newer
-- PostgreSQL installed and running
-- Git (optional, for cloning the repository)
+## ⚙️ Installation and Setup
 
-## Installation
-
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/tan118/DataBridge.git
 cd DataBridge
 ```
 
-### 2. Create and Activate a Virtual Environment
+### 2. Create a virtual environment
 
-**Windows PowerShell:**
-
-```powershell
+```bash
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 ```
 
-If PowerShell blocks script execution for the current terminal session:
+Activate it on Windows:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Install Dependencies
+### 3. Install dependencies
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-If the project dependency file does not already include the Excel reader for legacy `.xls` files, install it with:
+### 4. Configure PostgreSQL
 
-```bash
-python -m pip install xlrd
+Create a PostgreSQL database and configure the connection details in a `.env` file in the project root.
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=your_database_name
+DB_USER=postgres
+DB_PASSWORD=your_password
 ```
 
-## Configuration
+Do not commit your actual `.env` file or database credentials.
 
-Create a local `.env` file in the project root for the PostgreSQL connection settings expected by `src/database.py`.
-
-Do not commit `.env` or publish database passwords. Configure the variable names to match those read by your `database.py` implementation.
-
-Before using Database Loading, ensure that:
-
-1. PostgreSQL is running.
-2. The target database exists.
-3. The connection settings in `.env` are correct.
-4. The configured database user has permission to create or modify tables.
-
-## Run the Application
-
-From the project root, with the virtual environment activated:
+### 5. Run the application
 
 ```bash
 python -m streamlit run app.py
 ```
 
-Streamlit will display a local address in the terminal, usually:
+Open the local URL displayed in the terminal, usually:
 
 ```text
 http://localhost:8501
 ```
 
-Open that address in your browser.
+---
 
-## Typical Workflow
+## ☁️ Cloud Deployment
 
-1. Upload a CSV file through **Upload Dataset**.
-2. Inspect its quality through **Data Profiling**.
-3. Choose cleaning operations through **Data Transformation
+DataBridge is deployed using Streamlit Community Cloud.
+
+- Application hosting: Streamlit Community Cloud
+- Database hosting: Neon PostgreSQL
+- Database credentials: Streamlit Secrets
+
+For cloud deployment, configure the following secrets in the Streamlit application settings:
+
+```toml
+DB_HOST = "your_neon_host"
+DB_PORT = "5432"
+DB_NAME = "neondb"
+DB_USER = "your_neon_role"
+DB_PASSWORD = "your_neon_password"
+```
+
+Never publish actual database credentials.
+
+---
+
+## 📸 Application Screenshots
+
+Screenshots of the application's modules are available in the `screenshots/` directory.
+
+The screenshots demonstrate the dashboard, dataset upload, profiling, transformation, file conversion, and PostgreSQL loading functionality.
+
+---
+
+## 📊 Sample Dataset
+
+DataBridge was tested using the Online Retail dataset from the UCI Machine Learning Repository.
+
+Dataset source:
+
+https://archive.ics.uci.edu/dataset/352/online+retail
+
+---
+
+## 🔮 Future Enhancements
+
+- Support for additional input file formats.
+- Advanced data-quality visualizations.
+- Automated data validation.
+- Additional database integrations.
+- More transformation options.
+
+---
+
+## 👩‍💻 Author
+
+**Tanishka Mhetre**
+
+GitHub: https://github.com/tan118
+
+---
+
+*DataBridge — Simplifying Data Integration and Transformation.*
