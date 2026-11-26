@@ -1,0 +1,9 @@
+column,data_type,total_values,missing_values,missing_percentage,unique_values
+InvoiceNo,str,541909,0,0.0,25900
+StockCode,str,541909,0,0.0,4070
+Description,str,541909,1454,0.27,4223
+Quantity,int64,541909,0,0.0,722
+InvoiceDate,str,541909,0,0.0,23260
+UnitPrice,float64,541909,0,0.0,1630
+CustomerID,float64,541909,135080,24.93,4372
+Country,str,541909,0,0.0,38
